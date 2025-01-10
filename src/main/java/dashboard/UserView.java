@@ -38,11 +38,11 @@ public class UserView extends JPanel {
         filterPanel.add(cbSort);
 
         // Table
-        String[] columnNames = {"ID", "Nama Pengguna", "Daerah", "Total Sampah", "Total Point"};
+        String[] columnNames = {"ID", "Nama Pengguna", "Daerah", "Total Sampah", "Total Point", "Nomor HP"};
         Object[][] data = {
-            {1, "John Doe", "Jakarta", 150, 3000},
-            {2, "Jane Smith", "Bandung", 120, 2500},
-            {3, "Alice Brown", "Surabaya", 100, 2000}
+            {1, "John Doe", "Jakarta", 150, 3000, "081234567890"},
+            {2, "Jane Smith", "Bandung", 120, 2500, "081298765432"},
+            {3, "Alice Brown", "Surabaya", 100, 2000, "081345678901"}
         };
         JTable table = new JTable(data, columnNames);
         JScrollPane tableScrollPane = new JScrollPane(table);
@@ -73,6 +73,10 @@ public class UserView extends JPanel {
         JLabel lblTotalPoint = new JLabel("Total Point:");
         JTextField txtTotalPoint = new JTextField();
         txtTotalPoint.setPreferredSize(new Dimension(300, 30)); // Adjust size
+
+        JLabel lblNoHp = new JLabel("Nomor HP:");
+        JTextField txtNoHp = new JTextField();
+        txtNoHp.setPreferredSize(new Dimension(300, 30)); // Adjust size
 
         JButton btnCreate = new JButton("Tambah");
         JButton btnUpdate = new JButton("Ubah");
@@ -114,6 +118,12 @@ public class UserView extends JPanel {
 
         gbc.gridx = 0;
         gbc.gridy = 5;
+        inputPanel.add(lblNoHp, gbc);
+        gbc.gridx = 1;
+        inputPanel.add(txtNoHp, gbc);
+
+        gbc.gridx = 0;
+        gbc.gridy = 6;
         inputPanel.add(btnCreate, gbc);
         gbc.gridx = 1;
         inputPanel.add(btnUpdate, gbc);
@@ -126,5 +136,3 @@ public class UserView extends JPanel {
         add(inputPanel, BorderLayout.SOUTH);
     }
 }
-
-
