@@ -56,4 +56,9 @@ public class User {
     public String getNomorHp() {
         return nomorHp;
     }
+
+    @Override
+    public String toString() {
+        return namaPengguna; // Mengembalikan nama pengguna untuk ditampilkan di ComboBox
+    }
 }

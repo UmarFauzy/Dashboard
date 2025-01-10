@@ -1,15 +1,17 @@
 package model;
 
-public class Daerah {
+public class Dropbox {
     private int id;
-    private String namaDaerah;
+    private String namaDropBox;
+    private int daerahID;
     private double totalSampah;
     private int totalPoint;
 
     // Constructor
-    public Daerah(int id, String namaDaerah, double totalSampah, int totalPoint) {
+    public Dropbox(int id, String namaDropBox, int daerahID, double totalSampah, int totalPoint) {
         this.id = id;
-        this.namaDaerah = namaDaerah;
+        this.namaDropBox = namaDropBox;
+        this.daerahID = daerahID;
         this.totalSampah = totalSampah;
         this.totalPoint = totalPoint;
     }
@@ -23,12 +25,20 @@ public class Daerah {
         this.id = id;
     }
 
-    public String getNamaDaerah() {
-        return namaDaerah;
+    public String getNamaDropBox() {
+        return namaDropBox;
     }
 
-    public void setNamaDaerah(String namaDaerah) {
-        this.namaDaerah = namaDaerah;
+    public void setNamaDropBox(String namaDropBox) {
+        this.namaDropBox = namaDropBox;
+    }
+
+    public int getDaerahID() {
+        return daerahID;
+    }
+
+    public void setDaerahID(int daerahID) {
+        this.daerahID = daerahID;
     }
 
     public double getTotalSampah() {
@@ -47,9 +57,8 @@ public class Daerah {
         this.totalPoint = totalPoint;
     }
 
-    // Override toString() to display the Nama Daerah in JComboBox
     @Override
     public String toString() {
-        return namaDaerah;
+        return namaDropBox; // Nama dropbox akan ditampilkan di JComboBox
     }
 }

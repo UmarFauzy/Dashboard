@@ -54,17 +54,23 @@ public class UserDAO {
     public List<Daerah> getDaerahList() throws SQLException {
         List<Daerah> daerahList = new ArrayList<>();
         String query = "SELECT * FROM daerah";
+        
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
+                // Menambahkan objek Daerah ke dalam list dengan informasi lengkap dari database
                 daerahList.add(new Daerah(
                         rs.getInt("ID"),
-                        rs.getString("Nama_Daerah")
+                        rs.getString("Nama_Daerah"),
+                        rs.getDouble("Total_Sampah"),  // Mengambil Total_Sampah yang baru
+                        rs.getInt("Total_Point")       // Mengambil Total_Point yang baru
                 ));
             }
         }
         return daerahList;
     }
+    
+
 
     // UPDATE
     public void updateUser(User user) throws SQLException {
