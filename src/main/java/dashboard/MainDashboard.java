@@ -75,7 +75,7 @@ public class MainDashboard {
         // btnDaerah.addActionListener(e -> updateContentPanel(contentPanel, new DaerahView()));
         btnRiwayatTransaksi.addActionListener(e -> updateContentPanel(contentPanel, new RiwayatTransaksiView()));
         // btnKurir.addActionListener(e -> updateContentPanel(contentPanel, new KurirView()));
-        // btnPengguna.addActionListener(e -> updateContentPanel(contentPanel, new UserView()));
+        btnPengguna.addActionListener(e -> updateContentPanel(contentPanel, new UserView()));
     }
 
     private static JButton createSidebarButton(String text, String iconPath) {
