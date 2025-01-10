@@ -1,24 +1,27 @@
 package dashboard;
 
-import java.awt.BorderLayout;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
+import dao.UserDAO;
+import model.Daerah;
+import model.User;
 
-import javax.swing.BorderFactory;
-import javax.swing.JButton;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
-import javax.swing.JTextField;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
+import java.awt.*;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import java.sql.Connection;
+import java.util.List;
 
 public class UserView extends JPanel {
+    private JTable table;
+    private DefaultTableModel tableModel;
+    private JTextField txtNamaPengguna, txtTotalSampah, txtTotalPoint, txtNoHp;
+    private JComboBox<Daerah> cbDaerah;
+    private UserDAO userDAO;
+    private JButton btnCreate, btnUpdate, btnDelete;
 
-    public UserView() {
+    public UserView(Connection connection) {
+        this.userDAO = connection != null ? new UserDAO(connection) : null;
         setLayout(new BorderLayout());
 
         // Filter panel
@@ -26,113 +29,206 @@ public class UserView extends JPanel {
         filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 
         JLabel lblSearch = new JLabel("Search:");
-        JTextField txtSearch = new JTextField();
-        txtSearch.setPreferredSize(new Dimension(200, 30)); // Adjust size
-        JLabel lblSort = new JLabel("Sortir:");
-        JComboBox<String> cbSort = new JComboBox<>(new String[]{"Top", "Bottom"});
-        cbSort.setPreferredSize(new Dimension(120, 30)); // Adjust size
-
+        JTextField txtSearch = new JTextField(20);
         filterPanel.add(lblSearch);
         filterPanel.add(txtSearch);
-        filterPanel.add(lblSort);
-        filterPanel.add(cbSort);
 
         // Table
         String[] columnNames = {"ID", "Nama Pengguna", "Daerah", "Total Sampah", "Total Point", "Nomor HP"};
-        Object[][] data = {
-            {1, "John Doe", "Jakarta", 150, 3000, "081234567890"},
-            {2, "Jane Smith", "Bandung", 120, 2500, "081298765432"},
-            {3, "Alice Brown", "Surabaya", 100, 2000, "081345678901"}
-        };
-        JTable table = new JTable(data, columnNames);
+        tableModel = new DefaultTableModel(columnNames, 0);
+        table = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
 
-        // Input form
+        // Input panel
         JPanel inputPanel = new JPanel(new GridBagLayout());
         inputPanel.setBorder(BorderFactory.createTitledBorder("Input Data Pengguna"));
         GridBagConstraints gbc = new GridBagConstraints();
-        gbc.insets = new Insets(10, 10, 10, 10);
+        gbc.insets = new Insets(5, 5, 5, 5);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        JLabel lblID = new JLabel("ID:");
-        JTextField txtID = new JTextField();
-        txtID.setPreferredSize(new Dimension(300, 30)); // Adjust size
-
         JLabel lblNamaPengguna = new JLabel("Nama Pengguna:");
-        JTextField txtNamaPengguna = new JTextField();
-        txtNamaPengguna.setPreferredSize(new Dimension(300, 30)); // Adjust size
-
+        txtNamaPengguna = new JTextField();
         JLabel lblDaerah = new JLabel("Daerah:");
-        JTextField txtDaerah = new JTextField();
-        txtDaerah.setPreferredSize(new Dimension(300, 30)); // Adjust size
-
+        cbDaerah = new JComboBox<>();
         JLabel lblTotalSampah = new JLabel("Total Sampah:");
-        JTextField txtTotalSampah = new JTextField();
-        txtTotalSampah.setPreferredSize(new Dimension(300, 30)); // Adjust size
-
+        txtTotalSampah = new JTextField();
         JLabel lblTotalPoint = new JLabel("Total Point:");
-        JTextField txtTotalPoint = new JTextField();
-        txtTotalPoint.setPreferredSize(new Dimension(300, 30)); // Adjust size
-
+        txtTotalPoint = new JTextField();
         JLabel lblNoHp = new JLabel("Nomor HP:");
-        JTextField txtNoHp = new JTextField();
-        txtNoHp.setPreferredSize(new Dimension(300, 30)); // Adjust size
+        txtNoHp = new JTextField();
 
-        JButton btnCreate = new JButton("Tambah");
-        JButton btnUpdate = new JButton("Ubah");
-        JButton btnDelete = new JButton("Hapus");
-        btnCreate.setPreferredSize(new Dimension(100, 30)); // Adjust size
-        btnUpdate.setPreferredSize(new Dimension(100, 30)); // Adjust size
-        btnDelete.setPreferredSize(new Dimension(100, 30)); // Adjust size
+        btnCreate = new JButton("Tambah");
+        btnUpdate = new JButton("Ubah");
+        btnDelete = new JButton("Hapus");
 
         // Add input components
-        gbc.gridx = 0;
-        gbc.gridy = 0;
-        inputPanel.add(lblID, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtID, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 1;
-        inputPanel.add(lblNamaPengguna, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtNamaPengguna, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 2;
-        inputPanel.add(lblDaerah, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtDaerah, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 3;
-        inputPanel.add(lblTotalSampah, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtTotalSampah, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 4;
-        inputPanel.add(lblTotalPoint, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtTotalPoint, gbc);
+        addInputComponent(inputPanel, gbc, lblNamaPengguna, txtNamaPengguna, 0);
+        addInputComponent(inputPanel, gbc, lblDaerah, cbDaerah, 1);
+        addInputComponent(inputPanel, gbc, lblTotalSampah, txtTotalSampah, 2);
+        addInputComponent(inputPanel, gbc, lblTotalPoint, txtTotalPoint, 3);
+        addInputComponent(inputPanel, gbc, lblNoHp, txtNoHp, 4);
 
         gbc.gridx = 0;
         gbc.gridy = 5;
-        inputPanel.add(lblNoHp, gbc);
-        gbc.gridx = 1;
-        inputPanel.add(txtNoHp, gbc);
-
-        gbc.gridx = 0;
-        gbc.gridy = 6;
         inputPanel.add(btnCreate, gbc);
         gbc.gridx = 1;
         inputPanel.add(btnUpdate, gbc);
         gbc.gridx = 2;
         inputPanel.add(btnDelete, gbc);
 
-        // Add components to main panel
+        // Add to main panel
         add(filterPanel, BorderLayout.NORTH);
         add(tableScrollPane, BorderLayout.CENTER);
         add(inputPanel, BorderLayout.SOUTH);
+
+        // Load data
+        loadDaerahData();
+        loadUserData();
+
+        // Button actions
+        btnCreate.addActionListener(e -> createUser());
+        btnUpdate.addActionListener(e -> {
+            if (validateUpdate()) {
+                updateUser();
+            }
+        });
+        btnDelete.addActionListener(e -> {
+            if (validateDelete()) {
+                deleteUser();
+            }
+        });
+
+        // Event listener untuk tabel
+        table.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int selectedRow = table.getSelectedRow();
+                if (selectedRow != -1) {
+                    fillInputFields(selectedRow);
+                }
+            }
+        });
+    }
+
+    private void addInputComponent(JPanel panel, GridBagConstraints gbc, JLabel label, JComponent component, int row) {
+        gbc.gridx = 0;
+        gbc.gridy = row;
+        panel.add(label, gbc);
+        gbc.gridx = 1;
+        panel.add(component, gbc);
+        component.setPreferredSize(new Dimension(200, 25));
+    }
+
+    private void loadUserData() {
+        try {
+            List<User> users = userDAO.getAllUsersWithDaerah();
+            tableModel.setRowCount(0);
+            for (User user : users) {
+                tableModel.addRow(new Object[]{
+                        user.getId(),
+                        user.getNamaPengguna(),
+                        user.getNamaDaerah(),
+                        user.getTotalSampah(),
+                        user.getTotalPoint(),
+                        user.getNomorHp()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat data: " + e.getMessage());
+        }
+    }
+
+    private void loadDaerahData() {
+        try {
+            cbDaerah.removeAllItems();
+            List<Daerah> daerahList = userDAO.getDaerahList();
+            for (Daerah daerah : daerahList) {
+                cbDaerah.addItem(daerah);
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal memuat daerah: " + e.getMessage());
+        }
+    }
+
+    private void fillInputFields(int selectedRow) {
+        txtNamaPengguna.setText((String) tableModel.getValueAt(selectedRow, 1));
+        String daerahName = (String) tableModel.getValueAt(selectedRow, 2);
+        for (int i = 0; i < cbDaerah.getItemCount(); i++) {
+            if (cbDaerah.getItemAt(i).toString().equals(daerahName)) {
+                cbDaerah.setSelectedIndex(i);
+                break;
+            }
+        }
+        txtTotalSampah.setText(String.valueOf(tableModel.getValueAt(selectedRow, 3)));
+        txtTotalPoint.setText(String.valueOf(tableModel.getValueAt(selectedRow, 4)));
+        txtNoHp.setText((String) tableModel.getValueAt(selectedRow, 5));
+    }
+
+    private void createUser() {
+        try {
+            Daerah selectedDaerah = (Daerah) cbDaerah.getSelectedItem();
+            User user = new User(
+                    0,
+                    txtNamaPengguna.getText(),
+                    selectedDaerah.getId(),
+                    Double.parseDouble(txtTotalSampah.getText()),
+                    Integer.parseInt(txtTotalPoint.getText()),
+                    txtNoHp.getText()
+            );
+            userDAO.insertUser(user);
+            loadUserData();
+            JOptionPane.showMessageDialog(this, "Data berhasil ditambahkan!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal menambahkan data: " + e.getMessage());
+        }
+    }
+
+    private void updateUser() {
+        try {
+            int selectedRow = table.getSelectedRow();
+            int userId = (int) tableModel.getValueAt(selectedRow, 0);
+            Daerah selectedDaerah = (Daerah) cbDaerah.getSelectedItem();
+            User user = new User(
+                    userId,
+                    txtNamaPengguna.getText(),
+                    selectedDaerah.getId(),
+                    Double.parseDouble(txtTotalSampah.getText()),
+                    Integer.parseInt(txtTotalPoint.getText()),
+                    txtNoHp.getText()
+            );
+            userDAO.updateUser(user);
+            loadUserData();
+            JOptionPane.showMessageDialog(this, "Data berhasil diubah!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mengubah data: " + e.getMessage());
+        }
+    }
+
+    private void deleteUser() {
+        try {
+            int selectedRow = table.getSelectedRow();
+            int userId = (int) tableModel.getValueAt(selectedRow, 0);
+            userDAO.deleteUser(userId);
+            loadUserData();
+            JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage());
+        }
+    }
+
+    private boolean validateUpdate() {
+        if (table.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data di tabel untuk diubah!");
+            return false;
+        }
+        return true;
+    }
+
+    private boolean validateDelete() {
+        if (table.getSelectedRow() == -1) {
+            JOptionPane.showMessageDialog(this, "Pilih data di tabel untuk dihapus!");
+            return false;
+        }
+        return true;
     }
 }
