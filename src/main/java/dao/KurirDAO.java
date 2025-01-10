@@ -8,6 +8,7 @@ import java.util.List;
 public class KurirDAO {
     private Connection connection;
 
+    // Constructor
     public KurirDAO(Connection connection) {
         this.connection = connection;
     }
