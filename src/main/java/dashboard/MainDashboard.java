@@ -73,7 +73,7 @@ public class MainDashboard {
         // btnKeseluruhanSampah.addActionListener(e -> updateContentPanel(contentPanel, new KeseluruhanSampahView()));
         // btnDropBox.addActionListener(e -> updateContentPanel(contentPanel, new DropBoxView()));
         // btnDaerah.addActionListener(e -> updateContentPanel(contentPanel, new DaerahView()));
-        // btnRiwayatTransaksi.addActionListener(e -> updateContentPanel(contentPanel, new RiwayatTransaksiView()));
+        btnRiwayatTransaksi.addActionListener(e -> updateContentPanel(contentPanel, new RiwayatTransaksiView()));
         // btnKurir.addActionListener(e -> updateContentPanel(contentPanel, new KurirView()));
         // btnPengguna.addActionListener(e -> updateContentPanel(contentPanel, new UserView()));
     }
