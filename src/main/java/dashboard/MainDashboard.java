@@ -1,98 +1,94 @@
 package dashboard;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.GridLayout;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.SwingConstants;
+import java.awt.*;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import javax.swing.*;
 
 public class MainDashboard {
 
+    private static Connection connection; // Field untuk koneksi database
+
     public static void main(String[] args) {
-        // Create the main frame
+        // Inisialisasi koneksi database
+        initializeDatabaseConnection();
+
+        // Membuat frame utama
+        JFrame frame = createMainFrame();
+
+        // Membuat panel sidebar
+        JPanel sidebar = createSidebar(frame);
+
+        // Membuat panel konten utama
+        JPanel contentPanel = new JPanel();
+        contentPanel.setLayout(new BorderLayout());
+
+        // Tambahkan sidebar dan panel konten ke frame utama
+        frame.add(sidebar, BorderLayout.WEST);
+        frame.add(contentPanel, BorderLayout.CENTER);
+        frame.setVisible(true);
+
+        // Action listener untuk tombol Pengguna
+        JButton btnPengguna = (JButton) ((JPanel) sidebar.getComponent(1)).getComponent(0);
+        btnPengguna.addActionListener(e -> {
+            if (connection == null) {
+                JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
+                return;
+            }
+            updateContentPanel(contentPanel, new UserView(connection));
+        });
+
+        // Action listener untuk tombol Kurir
+        JButton btnKurir = (JButton) ((JPanel) sidebar.getComponent(1)).getComponent(1);
+        btnKurir.addActionListener(e -> {
+            if (connection == null) {
+                JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
+                return;
+            }
+            updateContentPanel(contentPanel, new KurirView(connection));
+        });
+    }
+
+    private static void initializeDatabaseConnection() {
+        try {
+            connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/tubespp2", "root", "");
+            System.out.println("Koneksi berhasil ke database!");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Gagal koneksi ke database: " + e.getMessage());
+            System.exit(1); // Keluar dari program jika koneksi gagal
+        }
+    }
+
+    private static JFrame createMainFrame() {
         JFrame frame = new JFrame("Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(1300, 900);
+        return frame;
+    }
 
-        // Create the sidebar
-        JPanel sidebar = new JPanel();
-        sidebar.setLayout(new BorderLayout());
+    private static JPanel createSidebar(JFrame frame) {
+        JPanel sidebar = new JPanel(new BorderLayout());
         sidebar.setBackground(Color.GREEN);
         sidebar.setPreferredSize(new Dimension(250, 0));
 
         JLabel title = new JLabel("Dashboard", SwingConstants.CENTER);
         title.setFont(new Font("Arial", Font.BOLD, 18));
-        title.setForeground(Color.BLACK);
         sidebar.add(title, BorderLayout.NORTH);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(7, 1, 5, 5));
+        JPanel buttonPanel = new JPanel(new GridLayout(7, 1, 5, 5));
         buttonPanel.setBackground(Color.GREEN);
 
-        // Create buttons with icons for the sidebar
-        JButton btnKategoriSampah = new JButton("Kategori Sampah");
-        JButton btnKeseluruhanSampah = new JButton("Keseluruhan Sampah");
-        JButton btnDropBox = new JButton("DropBox");
-        JButton btnDaerah = new JButton("Daerah");
-        JButton btnRiwayatTransaksi = new JButton("Riwayat Transaksi");
-        JButton btnKurir = new JButton("Kurir");
         JButton btnPengguna = new JButton("Pengguna");
-
-        // Add buttons to the button panel
-        buttonPanel.add(btnKategoriSampah);
-        buttonPanel.add(btnKeseluruhanSampah);
-        buttonPanel.add(btnDropBox);
-        buttonPanel.add(btnDaerah);
-        buttonPanel.add(btnRiwayatTransaksi);
-        buttonPanel.add(btnKurir);
         buttonPanel.add(btnPengguna);
+
+        JButton btnKurir = new JButton("Kurir");
+        buttonPanel.add(btnKurir);
 
         sidebar.add(buttonPanel, BorderLayout.CENTER);
 
-        // Create the main content panel
-        JPanel contentPanel = new JPanel();
-        contentPanel.setLayout(new BorderLayout());
-
-        // Add sidebar and content panel to the frame
-        frame.add(sidebar, BorderLayout.WEST);
-        frame.add(contentPanel, BorderLayout.CENTER);
-
-        // Show frame
-        frame.setVisible(true);
-
-        // Action listener for buttons
-        // btnKategoriSampah.addActionListener(e -> updateContentPanel(contentPanel, new KategoriSampahView()));
-        // btnKeseluruhanSampah.addActionListener(e -> updateContentPanel(contentPanel, new KeseluruhanSampahView()));
-        // btnDropBox.addActionListener(e -> updateContentPanel(contentPanel, new DropBoxView()));
-        // btnDaerah.addActionListener(e -> updateContentPanel(contentPanel, new DaerahView()));
-        btnRiwayatTransaksi.addActionListener(e -> updateContentPanel(contentPanel, new RiwayatTransaksiView()));
-        btnKurir.addActionListener(e -> updateContentPanel(contentPanel, new KurirView()));
-        btnPengguna.addActionListener(e -> updateContentPanel(contentPanel, new UserView()));
-    }
-
-    private static JButton createSidebarButton(String text, String iconPath) {
-        // Load icon if available
-        ImageIcon icon = null;
-        java.io.File iconFile = new java.io.File(iconPath);
-        if (iconFile.exists()) {
-            icon = new ImageIcon(iconPath);
-        }
-
-        JButton button = new JButton(text, icon);
-        button.setHorizontalAlignment(SwingConstants.LEFT);
-        button.setFocusPainted(false);
-        button.setFont(new Font("Arial", Font.PLAIN, 12));
-        button.setBackground(Color.WHITE);
-        button.setPreferredSize(new Dimension(130, 40)); // Set button size
-        return button;
+        return sidebar;
     }
 
     private static void updateContentPanel(JPanel contentPanel, JComponent newContent) {
