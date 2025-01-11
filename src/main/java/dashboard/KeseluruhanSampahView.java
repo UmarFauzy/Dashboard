@@ -97,6 +97,7 @@ public class KeseluruhanSampahView extends JPanel {
         try {
             KategoriSampahDAO kategoriSampahDAO = new KategoriSampahDAO(connection);
             List<KategoriSampah> kategoriSampahList = kategoriSampahDAO.getAllKategoriSampah();
+            cbKategoriSampah.removeAllItems(); // Clear previous items
             for (KategoriSampah kategori : kategoriSampahList) {
                 cbKategoriSampah.addItem(kategori);
             }
@@ -105,14 +106,18 @@ public class KeseluruhanSampahView extends JPanel {
             JOptionPane.showMessageDialog(this, "Error loading kategori sampah: " + e.getMessage());
         }
     }
+    
 
     private void loadKeseluruhanSampahData(Connection connection) {
         try {
             KeseluruhanSampahDAO keseluruhanSampahDAO = new KeseluruhanSampahDAO(connection);
+            KategoriSampahDAO kategoriSampahDAO = new KategoriSampahDAO(connection); // Ambil kategori
             List<KeseluruhanSampah> keseluruhanSampahList = keseluruhanSampahDAO.getAllKeseluruhanSampah();
-            tableModel.setRowCount(0);
+    
+            tableModel.setRowCount(0); // Clear previous data
             for (KeseluruhanSampah sampah : keseluruhanSampahList) {
-                String namaKategori = sampah.getKategoriSampah().getNamaKategori();
+                KategoriSampah kategoriSampah = kategoriSampahDAO.getKategoriSampahByNo(sampah.getKategoriSampahId()); // Ambil nama kategori
+                String namaKategori = kategoriSampah != null ? kategoriSampah.getNamaKategori() : "Tidak Ditemukan";
                 tableModel.addRow(new Object[]{
                     sampah.getNo(),
                     sampah.getJenisSampah(),
@@ -125,6 +130,7 @@ public class KeseluruhanSampahView extends JPanel {
             JOptionPane.showMessageDialog(this, "Error loading keseluruhan sampah data: " + e.getMessage());
         }
     }
+    
 
     private void addKeseluruhanSampah(Connection connection) {
         try {
@@ -142,6 +148,7 @@ public class KeseluruhanSampahView extends JPanel {
             JOptionPane.showMessageDialog(this, "Error adding keseluruhan sampah: " + e.getMessage());
         }
     }
+    
 
     private void updateKeseluruhanSampah(Connection connection) {
         try {
@@ -165,6 +172,7 @@ public class KeseluruhanSampahView extends JPanel {
             JOptionPane.showMessageDialog(this, "Error updating keseluruhan sampah: " + e.getMessage());
         }
     }
+    
 
     private void deleteKeseluruhanSampah(Connection connection) {
         try {
