@@ -9,6 +9,8 @@ import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.util.List;
 
@@ -19,6 +21,7 @@ public class UserView extends JPanel {
     private JComboBox<Daerah> cbDaerah;
     private UserDAO userDAO;
     private JButton btnCreate, btnUpdate, btnDelete;
+    private JTextField txtSearch; // Deklarasi global untuk search field
 
     public UserView(Connection connection) {
         this.userDAO = connection != null ? new UserDAO(connection) : null;
@@ -29,7 +32,7 @@ public class UserView extends JPanel {
         filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 
         JLabel lblSearch = new JLabel("Search:");
-        JTextField txtSearch = new JTextField(20);
+        txtSearch = new JTextField(20); // Inisialisasi search field
         filterPanel.add(lblSearch);
         filterPanel.add(txtSearch);
 
@@ -106,6 +109,15 @@ public class UserView extends JPanel {
                 if (selectedRow != -1) {
                     fillInputFields(selectedRow);
                 }
+            }
+        });
+
+        // Event listener untuk search field
+        txtSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = txtSearch.getText().trim(); // Trim untuk menghapus spasi tambahan
+                searchUser(keyword);
             }
         });
     }
@@ -213,6 +225,25 @@ public class UserView extends JPanel {
             JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
         } catch (Exception e) {
             JOptionPane.showMessageDialog(this, "Gagal menghapus data: " + e.getMessage());
+        }
+    }
+
+    private void searchUser(String keyword) {
+        try {
+            List<User> users = userDAO.searchUserByName(keyword);
+            tableModel.setRowCount(0); // Bersihkan data tabel
+            for (User user : users) {
+                tableModel.addRow(new Object[]{
+                        user.getId(),
+                        user.getNamaPengguna(),
+                        user.getNamaDaerah(),
+                        user.getTotalSampah(),
+                        user.getTotalPoint(),
+                        user.getNomorHp()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage());
         }
     }
 
