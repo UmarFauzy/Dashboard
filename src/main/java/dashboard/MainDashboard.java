@@ -1,11 +1,22 @@
 package dashboard;
 
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.GridLayout;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import javax.swing.*;
 
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 public class MainDashboard {
 
@@ -103,6 +114,17 @@ public class MainDashboard {
 
         // Menambahkan tombol Keseluruhan Sampah hanya satu kali
         buttonPanel.add(btnKeseluruhanSampah);
+
+        // Action listener untuk tombol Riwayat Transaksi
+        JButton btnRiwayatTransaksi = new JButton("Riwayat Transaksi");
+        btnRiwayatTransaksi.addActionListener(e -> {
+            if (connection == null) {
+                JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
+                return;
+            }
+            updateContentPanel(contentPanel, new RiwayatTransaksiView(connection));
+        });
+        ((JPanel) sidebar.getComponent(1)).add(btnRiwayatTransaksi);
     }
 
     private static void initializeDatabaseConnection() {
@@ -141,15 +163,16 @@ public class MainDashboard {
         JButton btnKurir = new JButton("Kurir");
         buttonPanel.add(btnKurir);
 
-        JButton btnDaerah = new JButton("Daerah");
-        buttonPanel.add(btnDaerah);
-
-        JButton btnDropbox = new JButton("Dropbox");
-        buttonPanel.add(btnDropbox);
-
-        JButton btnKategoriSampah = new JButton("Kategori Sampah");
-        buttonPanel.add(btnKategoriSampah);
-
+//        JButton btnDaerah = new JButton("Daerah");
+//        buttonPanel.add(btnDaerah);
+//
+//        JButton btnDropbox = new JButton("Dropbox");
+//        buttonPanel.add(btnDropbox);
+//
+//        JButton btnKategoriSampah = new JButton("Kategori Sampah");
+//        buttonPanel.add(btnKategoriSampah);
+//        JButton btnRiwayatTransaksi = new JButton("Riwayat Transaksi");
+//        buttonPanel.add(btnRiwayatTransaksi);
         sidebar.add(buttonPanel, BorderLayout.CENTER);
 
         return sidebar;
