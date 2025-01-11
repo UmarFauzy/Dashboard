@@ -4,6 +4,10 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.swing.RowFilter;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableRowSorter;
+
 import model.Daerah;
 import model.User;
 
@@ -13,6 +17,31 @@ public class UserDAO {
     public UserDAO(Connection connection) {
         this.connection = connection;
     }
+
+    // SEARCH
+    public List<User> searchUserByName(String keyword) throws SQLException {
+        List<User> users = new ArrayList<>();
+        String query = "SELECT u.id AS id, u.Nama_Pengguna AS namaPengguna, d.Nama_Daerah AS namaDaerah, " +
+                       "u.Total_Sampah AS totalSampah, u.Total_Point AS totalPoint, u.Nomor_HP AS nomorHp " +
+                       "FROM user u JOIN daerah d ON u.Daerah_ID = d.ID " +
+                       "WHERE u.Nama_Pengguna LIKE ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, "%" + keyword + "%");
+            ResultSet rs = stmt.executeQuery();
+            while (rs.next()) {
+                users.add(new User(
+                        rs.getInt("id"),
+                        rs.getString("namaPengguna"),
+                        rs.getString("namaDaerah"),
+                        rs.getDouble("totalSampah"),
+                        rs.getInt("totalPoint"),
+                        rs.getString("nomorHp")
+                ));
+            }
+        }
+        return users;
+    }
+    
 
     // CREATE
     public void insertUser(User user) throws SQLException {
@@ -95,3 +124,5 @@ public class UserDAO {
         }
     }
 }
+
+

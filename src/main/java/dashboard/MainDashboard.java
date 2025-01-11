@@ -6,6 +6,8 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import javax.swing.*;
 
+import model.User;
+
 public class MainDashboard {
 
     private static Connection connection; // Field untuk koneksi database
@@ -151,4 +153,6 @@ public class MainDashboard {
         contentPanel.revalidate();
         contentPanel.repaint();
     }
+
 }
+
