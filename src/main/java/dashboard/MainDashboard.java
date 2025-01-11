@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import javax.swing.*;
 
-import model.User;
 
 public class MainDashboard {
 
@@ -92,6 +91,16 @@ public class MainDashboard {
             }
             updateContentPanel(contentPanel, new KeseluruhanSampahView(connection));
         });
+
+        // Action listener untuk tombol RiwayatTransaksi
+        JButton btnRiwayatTransaksi =(JButton) ((JPanel) sidebar.getComponent(1)).getComponent(6);
+        btnRiwayatTransaksi.addActionListener(e -> {
+            if (connection == null) {
+                JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
+                return;
+            }
+            updateContentPanel(contentPanel, new RiwayatTransaksiView(connection));
+        });
     }
 
     private static void initializeDatabaseConnection() {
@@ -141,6 +150,9 @@ public class MainDashboard {
 
         JButton btnKeseluruhanSampah = new JButton("Keseluruhan Sampah");
         buttonPanel.add(btnKeseluruhanSampah);
+
+        JButton btnRiwayatTransaksi = new JButton("Riwayat Transaksi");
+        buttonPanel.add(btnRiwayatTransaksi);
 
         sidebar.add(buttonPanel, BorderLayout.CENTER);
 

@@ -8,8 +8,31 @@ import java.util.List;
 public class DaerahDAO {
     private Connection connection;
 
+    // Constructor
     public DaerahDAO(Connection connection) {
         this.connection = connection;
+    }
+
+    // SEARCH
+    public List<Daerah> searchDaerahByName(String keyword) throws SQLException {
+        List<Daerah> daerahList = new ArrayList<>();
+        String query = "SELECT ID AS id, Nama_Daerah AS namaDaerah, Total_Sampah AS totalSampah, Total_Point AS totalPoint " +
+                       "FROM daerah " +
+                       "WHERE Nama_Daerah LIKE ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    daerahList.add(new Daerah(
+                            rs.getInt("id"),
+                            rs.getString("namaDaerah"),
+                            rs.getDouble("totalSampah"),
+                            rs.getInt("totalPoint")
+                    ));
+                }
+            }
+        }
+        return daerahList;
     }
 
     // CREATE
@@ -26,15 +49,15 @@ public class DaerahDAO {
     // READ
     public List<Daerah> getAllDaerah() throws SQLException {
         List<Daerah> daerahList = new ArrayList<>();
-        String query = "SELECT * FROM daerah";
+        String query = "SELECT ID AS id, Nama_Daerah AS namaDaerah, Total_Sampah AS totalSampah, Total_Point AS totalPoint FROM daerah";
         try (Statement stmt = connection.createStatement();
              ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 daerahList.add(new Daerah(
-                        rs.getInt("ID"),
-                        rs.getString("Nama_Daerah"),
-                        rs.getDouble("Total_Sampah"),
-                        rs.getInt("Total_Point")
+                        rs.getInt("id"),
+                        rs.getString("namaDaerah"),
+                        rs.getDouble("totalSampah"),
+                        rs.getInt("totalPoint")
                 ));
             }
         }

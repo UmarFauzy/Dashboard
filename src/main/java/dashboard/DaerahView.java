@@ -6,15 +6,19 @@ import model.Daerah;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.util.List;
 
 public class DaerahView extends JPanel {
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtDaerah, txtTotalSampah, txtTotalPoint;
+    private JTextField txtDaerah, txtTotalSampah, txtTotalPoint, txtSearch;
+    private DaerahDAO daerahDAO;
 
     public DaerahView(Connection connection) {
+        this.daerahDAO = new DaerahDAO(connection); // Inisialisasi DAO
         setLayout(new BorderLayout());
 
         // Panel untuk filter
@@ -22,7 +26,7 @@ public class DaerahView extends JPanel {
         filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 
         JLabel lblSearch = new JLabel("Cari:");
-        JTextField txtSearch = new JTextField(15);
+        txtSearch = new JTextField(20); // Inisialisasi search field
         JLabel lblSort = new JLabel("Sortir:");
         JComboBox<String> cbSort = new JComboBox<>(new String[]{"Top", "Bottom"});
 
@@ -46,22 +50,22 @@ public class DaerahView extends JPanel {
 
         JLabel lblDaerah = new JLabel("Daerah:");
         txtDaerah = new JTextField();
-        txtDaerah.setPreferredSize(new Dimension(300, 30)); // Adjust size
+        txtDaerah.setPreferredSize(new Dimension(300, 30));
 
         JLabel lblTotalSampah = new JLabel("Total Sampah:");
         txtTotalSampah = new JTextField();
-        txtTotalSampah.setPreferredSize(new Dimension(300, 30)); // Adjust size
+        txtTotalSampah.setPreferredSize(new Dimension(300, 30));
 
         JLabel lblTotalPoint = new JLabel("Total Point:");
         txtTotalPoint = new JTextField();
-        txtTotalPoint.setPreferredSize(new Dimension(300, 30)); // Adjust size
+        txtTotalPoint.setPreferredSize(new Dimension(300, 30));
 
         JButton btnCreate = new JButton("Tambah");
         JButton btnUpdate = new JButton("Ubah");
         JButton btnDelete = new JButton("Hapus");
-        btnCreate.setPreferredSize(new Dimension(100, 30)); // Adjust size
-        btnUpdate.setPreferredSize(new Dimension(100, 30)); // Adjust size
-        btnDelete.setPreferredSize(new Dimension(100, 30)); // Adjust size
+        btnCreate.setPreferredSize(new Dimension(100, 30));
+        btnUpdate.setPreferredSize(new Dimension(100, 30));
+        btnDelete.setPreferredSize(new Dimension(100, 30));
 
         // Add input components
         gbc.gridx = 0;
@@ -99,7 +103,6 @@ public class DaerahView extends JPanel {
         table.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                // Fill the input fields with selected row data
                 txtDaerah.setText(tableModel.getValueAt(selectedRow, 1).toString());
                 txtTotalSampah.setText(tableModel.getValueAt(selectedRow, 2).toString());
                 txtTotalPoint.setText(tableModel.getValueAt(selectedRow, 3).toString());
@@ -107,19 +110,26 @@ public class DaerahView extends JPanel {
         });
 
         // Event Listener for CRUD buttons
-        btnCreate.addActionListener(e -> addDaerah(connection));
-        btnUpdate.addActionListener(e -> updateDaerah(connection));
-        btnDelete.addActionListener(e -> deleteDaerah(connection));
+        btnCreate.addActionListener(e -> addDaerah());
+        btnUpdate.addActionListener(e -> updateDaerah());
+        btnDelete.addActionListener(e -> deleteDaerah());
+
+        // Event Listener for Search Field
+        txtSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = txtSearch.getText().trim();
+                searchDaerah(keyword);
+            }
+        });
 
         // Load data into table
-        loadDaerahData(connection);
+        loadDaerahData();
     }
 
-    private void loadDaerahData(Connection connection) {
+    private void loadDaerahData() {
         try {
-            DaerahDAO daerahDAO = new DaerahDAO(connection);
             List<Daerah> daerahList = daerahDAO.getAllDaerah();
-
             tableModel.setRowCount(0); // Clear previous data in table
             for (Daerah daerah : daerahList) {
                 tableModel.addRow(new Object[]{
@@ -135,18 +145,17 @@ public class DaerahView extends JPanel {
         }
     }
 
-    private void addDaerah(Connection connection) {
+    private void addDaerah() {
         try {
             String namaDaerah = txtDaerah.getText();
             double totalSampah = Double.parseDouble(txtTotalSampah.getText());
             int totalPoint = Integer.parseInt(txtTotalPoint.getText());
 
             Daerah newDaerah = new Daerah(0, namaDaerah, totalSampah, totalPoint);
-            DaerahDAO daerahDAO = new DaerahDAO(connection);
             daerahDAO.insertDaerah(newDaerah);
 
             JOptionPane.showMessageDialog(this, "Daerah berhasil ditambahkan!");
-            loadDaerahData(connection);
+            loadDaerahData();
             clearInputFields();
         } catch (Exception e) {
             e.printStackTrace();
@@ -154,7 +163,7 @@ public class DaerahView extends JPanel {
         }
     }
 
-    private void updateDaerah(Connection connection) {
+    private void updateDaerah() {
         try {
             int selectedRow = table.getSelectedRow();
             if (selectedRow == -1) {
@@ -168,11 +177,10 @@ public class DaerahView extends JPanel {
             int totalPoint = Integer.parseInt(txtTotalPoint.getText());
 
             Daerah updatedDaerah = new Daerah(id, namaDaerah, totalSampah, totalPoint);
-            DaerahDAO daerahDAO = new DaerahDAO(connection);
             daerahDAO.updateDaerah(updatedDaerah);
 
             JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
-            loadDaerahData(connection);
+            loadDaerahData();
             clearInputFields();
         } catch (Exception e) {
             e.printStackTrace();
@@ -180,7 +188,7 @@ public class DaerahView extends JPanel {
         }
     }
 
-    private void deleteDaerah(Connection connection) {
+    private void deleteDaerah() {
         try {
             int selectedRow = table.getSelectedRow();
             if (selectedRow == -1) {
@@ -189,11 +197,10 @@ public class DaerahView extends JPanel {
             }
 
             int id = (int) tableModel.getValueAt(selectedRow, 0);
-            DaerahDAO daerahDAO = new DaerahDAO(connection);
             daerahDAO.deleteDaerah(id);
 
             JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
-            loadDaerahData(connection);
+            loadDaerahData();
             clearInputFields();
         } catch (Exception e) {
             e.printStackTrace();
@@ -201,7 +208,23 @@ public class DaerahView extends JPanel {
         }
     }
 
-    // Kosongkan kolom input
+    private void searchDaerah(String keyword) {
+        try {
+            List<Daerah> daerahList = daerahDAO.searchDaerahByName(keyword);
+            tableModel.setRowCount(0); // Clear table data
+            for (Daerah daerah : daerahList) {
+                tableModel.addRow(new Object[]{
+                        daerah.getId(),
+                        daerah.getNamaDaerah(),
+                        daerah.getTotalSampah(),
+                        daerah.getTotalPoint()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage());
+        }
+    }
+
     private void clearInputFields() {
         txtDaerah.setText("");
         txtTotalSampah.setText("");
