@@ -1,26 +1,29 @@
 package dashboard;
 
 import dao.DropboxDAO;
-import dao.DaerahDAO;
 import model.Dropbox;
-import model.Daerah;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class DropBoxView extends JPanel {
-
     private JTable table;
     private DefaultTableModel tableModel;
-    private JTextField txtNama, txtTotalSampah, txtTotalPoin;
-    private JComboBox<Daerah> cbDaerah;
+    private JTextField txtNamaDropbox, txtLokasiDropbox, txtTotalSampah, txtTotalPoint, txtSearch;
+    private DropboxDAO dropboxDAO;
 
     public DropBoxView(Connection connection) {
+        // Pastikan koneksi valid
+        if (connection == null) {
+            throw new IllegalArgumentException("Connection cannot be null");
+        }
+
+        this.dropboxDAO = new DropboxDAO(connection); // Inisialisasi DAO
         setLayout(new BorderLayout());
 
         // Panel untuk filter
@@ -28,180 +31,147 @@ public class DropBoxView extends JPanel {
         filterPanel.setBorder(BorderFactory.createTitledBorder("Filter"));
 
         JLabel lblSearch = new JLabel("Cari:");
-        JTextField txtSearch = new JTextField(15);
-        JLabel lblSort = new JLabel("Sortir:");
-        JComboBox<String> cbSort = new JComboBox<>(new String[]{"Top", "Bottom"});
-
+        txtSearch = new JTextField(20);
         filterPanel.add(lblSearch);
         filterPanel.add(txtSearch);
-        filterPanel.add(lblSort);
-        filterPanel.add(cbSort);
 
-        // Tabel untuk data Drop Box
-        String[] columnNames = {"ID", "Nama Drop Box", "Daerah", "Total Sampah", "Total Poin"};
+        // Tabel untuk data Dropbox
+        String[] columnNames = {"ID", "Nama Dropbox", "Daerah ID", "Total Sampah", "Total Point"};
         tableModel = new DefaultTableModel(columnNames, 0);
         table = new JTable(tableModel);
         JScrollPane tableScrollPane = new JScrollPane(table);
 
-        // Form input CRUD
-        JPanel formPanel = new JPanel();
-        formPanel.setBorder(BorderFactory.createTitledBorder("Form Input"));
-        formPanel.setLayout(new GridBagLayout());  // Menggunakan GridBagLayout untuk merapikan elemen
-
+        // Input form
+        JPanel inputPanel = new JPanel(new GridBagLayout());
+        inputPanel.setBorder(BorderFactory.createTitledBorder("Input Data Dropbox"));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // Grid untuk form input
-        JLabel lblNama = new JLabel("Nama Drop Box:");
-        txtNama = new JTextField(15);
+        JLabel lblNamaDropbox = new JLabel("Nama Dropbox:");
+        txtNamaDropbox = new JTextField();
+        txtNamaDropbox.setPreferredSize(new Dimension(300, 30));
 
-        JLabel lblDaerah = new JLabel("Daerah:");
-        cbDaerah = new JComboBox<>();
-        loadDaerahData(connection);  // Memuat data Daerah untuk ComboBox
+        JLabel lblLokasiDropbox = new JLabel("Daerah ID:");
+        txtLokasiDropbox = new JTextField();
+        txtLokasiDropbox.setPreferredSize(new Dimension(300, 30));
 
         JLabel lblTotalSampah = new JLabel("Total Sampah:");
-        txtTotalSampah = new JTextField(15);
+        txtTotalSampah = new JTextField();
+        txtTotalSampah.setPreferredSize(new Dimension(300, 30));
 
-        JLabel lblTotalPoin = new JLabel("Total Poin:");
-        txtTotalPoin = new JTextField(15);
+        JLabel lblTotalPoint = new JLabel("Total Point:");
+        txtTotalPoint = new JTextField();
+        txtTotalPoint.setPreferredSize(new Dimension(300, 30));
 
-        // Menambahkan komponen ke dalam form panel menggunakan GridBagLayout
+        JButton btnCreate = new JButton("Tambah");
+        JButton btnUpdate = new JButton("Ubah");
+        JButton btnDelete = new JButton("Hapus");
+
+        // Add input components
         gbc.gridx = 0;
         gbc.gridy = 0;
-        formPanel.add(lblNama, gbc);
+        inputPanel.add(lblNamaDropbox, gbc);
         gbc.gridx = 1;
-        formPanel.add(txtNama, gbc);
+        inputPanel.add(txtNamaDropbox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 1;
-        formPanel.add(lblDaerah, gbc);
+        inputPanel.add(lblLokasiDropbox, gbc);
         gbc.gridx = 1;
-        formPanel.add(cbDaerah, gbc);
+        inputPanel.add(txtLokasiDropbox, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        formPanel.add(lblTotalSampah, gbc);
+        inputPanel.add(lblTotalSampah, gbc);
         gbc.gridx = 1;
-        formPanel.add(txtTotalSampah, gbc);
+        inputPanel.add(txtTotalSampah, gbc);
 
         gbc.gridx = 0;
         gbc.gridy = 3;
-        formPanel.add(lblTotalPoin, gbc);
+        inputPanel.add(lblTotalPoint, gbc);
         gbc.gridx = 1;
-        formPanel.add(txtTotalPoin, gbc);
+        inputPanel.add(txtTotalPoint, gbc);
 
-        // Tombol CRUD
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER));
-        JButton btnAdd = new JButton("Tambah");
-        JButton btnEdit = new JButton("Edit");
-        JButton btnDelete = new JButton("Hapus");
-
-        buttonPanel.add(btnAdd);
-        buttonPanel.add(btnEdit);
-        buttonPanel.add(btnDelete);
-
-        // Menambahkan tombol ke form panel
         gbc.gridx = 0;
         gbc.gridy = 4;
-        gbc.gridwidth = 2;
-        formPanel.add(buttonPanel, gbc);
+        inputPanel.add(btnCreate, gbc);
+        gbc.gridx = 1;
+        inputPanel.add(btnUpdate, gbc);
+        gbc.gridx = 2;
+        inputPanel.add(btnDelete, gbc);
 
-        // Tambahkan komponen ke panel utama
+        // Add components to main panel
         add(filterPanel, BorderLayout.NORTH);
         add(tableScrollPane, BorderLayout.CENTER);
-        add(formPanel, BorderLayout.SOUTH);
+        add(inputPanel, BorderLayout.SOUTH);
 
-        // Event listeners untuk CRUD buttons
-        btnAdd.addActionListener(e -> addDropbox(connection));
-        btnEdit.addActionListener(e -> updateDropbox(connection));
-        btnDelete.addActionListener(e -> deleteDropbox(connection));
-
-        // Load data ke tabel
-        loadDropboxData(connection);
-
-        // Event listener untuk tabel
+        // Event Listener for table row selection
         table.getSelectionModel().addListSelectionListener(e -> {
             int selectedRow = table.getSelectedRow();
             if (selectedRow != -1) {
-                // Isi kolom input dengan data dari baris yang dipilih
-                txtNama.setText(tableModel.getValueAt(selectedRow, 1).toString());
-                cbDaerah.setSelectedItem(tableModel.getValueAt(selectedRow, 2));
+                txtNamaDropbox.setText(tableModel.getValueAt(selectedRow, 1).toString());
+                txtLokasiDropbox.setText(tableModel.getValueAt(selectedRow, 2).toString());
                 txtTotalSampah.setText(tableModel.getValueAt(selectedRow, 3).toString());
-                txtTotalPoin.setText(tableModel.getValueAt(selectedRow, 4).toString());
+                txtTotalPoint.setText(tableModel.getValueAt(selectedRow, 4).toString());
             }
         });
+
+        // Event Listener for CRUD buttons
+        btnCreate.addActionListener(e -> addDropbox());
+        btnUpdate.addActionListener(e -> updateDropbox());
+        btnDelete.addActionListener(e -> deleteDropbox());
+
+        // Event Listener for Search Field
+        txtSearch.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                String keyword = txtSearch.getText().trim();
+                searchDropbox(keyword);
+            }
+        });
+
+        // Load data into table
+        loadDropboxData();
     }
 
-    private void loadDaerahData(Connection connection) {
+    private void loadDropboxData() {
         try {
-            DaerahDAO daerahDAO = new DaerahDAO(connection);
-            List<Daerah> daerahList = daerahDAO.getAllDaerah();
-
-            for (Daerah daerah : daerahList) {
-                cbDaerah.addItem(daerah);  // Menambahkan Daerah ke JComboBox
+            List<Dropbox> dropboxList = dropboxDAO.getAllDropbox();
+            tableModel.setRowCount(0);
+            for (Dropbox dropbox : dropboxList) {
+                tableModel.addRow(new Object[]{
+                        dropbox.getId(),
+                        dropbox.getNamaDropBox(),
+                        dropbox.getDaerahID(),
+                        dropbox.getTotalSampah(),
+                        dropbox.getTotalPoint()
+                });
             }
         } catch (Exception e) {
-            e.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error loading daerah: " + e.getMessage());
+            JOptionPane.showMessageDialog(this, "Error loading data: " + e.getMessage());
         }
     }
 
-private void loadDropboxData(Connection connection) {
-    try {
-        DropboxDAO dropboxDAO = new DropboxDAO(connection);
-        List<Dropbox> dropboxList = dropboxDAO.getAllDropbox();
-
-        tableModel.setRowCount(0); // Clear previous data
-
-        // Mengambil data Daerah dari DaerahDAO untuk mencocokkan ID
-        DaerahDAO daerahDAO = new DaerahDAO(connection);
-        List<Daerah> daerahList = daerahDAO.getAllDaerah();
-        // Membuat peta untuk ID -> Nama Daerah
-        Map<Integer, String> daerahMap = new HashMap<>();
-        for (Daerah daerah : daerahList) {
-            daerahMap.put(daerah.getId(), daerah.getNamaDaerah());
-        }
-
-        // Menambahkan data ke dalam tabel
-        for (Dropbox dropbox : dropboxList) {
-            String namaDaerah = daerahMap.get(dropbox.getDaerahID()); // Mendapatkan nama daerah berdasarkan ID
-            tableModel.addRow(new Object[]{
-                    dropbox.getId(),
-                    dropbox.getNamaDropBox(),
-                    namaDaerah, // Menampilkan nama daerah
-                    dropbox.getTotalSampah(),
-                    dropbox.getTotalPoint()
-            });
-        }
-    } catch (Exception e) {
-        e.printStackTrace();
-        JOptionPane.showMessageDialog(this, "Error loading dropbox data: " + e.getMessage());
-    }
-}
-
-
-    private void addDropbox(Connection connection) {
+    private void addDropbox() {
         try {
-            String namaDropbox = txtNama.getText();
-            Daerah selectedDaerah = (Daerah) cbDaerah.getSelectedItem();
+            String namaDropbox = txtNamaDropbox.getText();
+            int daerahID = Integer.parseInt(txtLokasiDropbox.getText());
             double totalSampah = Double.parseDouble(txtTotalSampah.getText());
-            int totalPoint = Integer.parseInt(txtTotalPoin.getText());
+            int totalPoint = Integer.parseInt(txtTotalPoint.getText());
 
-            Dropbox newDropbox = new Dropbox(0, namaDropbox, selectedDaerah.getId(), totalSampah, totalPoint);
-            DropboxDAO dropboxDAO = new DropboxDAO(connection);
+            Dropbox newDropbox = new Dropbox(0, namaDropbox, daerahID, totalSampah, totalPoint);
             dropboxDAO.insertDropbox(newDropbox);
 
             JOptionPane.showMessageDialog(this, "Dropbox berhasil ditambahkan!");
-            loadDropboxData(connection);
+            loadDropboxData();
             clearInputFields();
         } catch (Exception e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error adding dropbox: " + e.getMessage());
         }
     }
 
-    private void updateDropbox(Connection connection) {
+    private void updateDropbox() {
         try {
             int selectedRow = table.getSelectedRow();
             if (selectedRow == -1) {
@@ -210,25 +180,23 @@ private void loadDropboxData(Connection connection) {
             }
 
             int id = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
-            String namaDropbox = txtNama.getText();
-            Daerah selectedDaerah = (Daerah) cbDaerah.getSelectedItem();
+            String namaDropbox = txtNamaDropbox.getText();
+            int daerahID = Integer.parseInt(txtLokasiDropbox.getText());
             double totalSampah = Double.parseDouble(txtTotalSampah.getText());
-            int totalPoint = Integer.parseInt(txtTotalPoin.getText());
+            int totalPoint = Integer.parseInt(txtTotalPoint.getText());
 
-            Dropbox updatedDropbox = new Dropbox(id, namaDropbox, selectedDaerah.getId(), totalSampah, totalPoint);
-            DropboxDAO dropboxDAO = new DropboxDAO(connection);
+            Dropbox updatedDropbox = new Dropbox(id, namaDropbox, daerahID, totalSampah, totalPoint);
             dropboxDAO.updateDropbox(updatedDropbox);
 
             JOptionPane.showMessageDialog(this, "Data berhasil diperbarui!");
-            loadDropboxData(connection);
+            loadDropboxData();
             clearInputFields();
         } catch (Exception e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error updating dropbox: " + e.getMessage());
         }
     }
 
-    private void deleteDropbox(Connection connection) {
+    private void deleteDropbox() {
         try {
             int selectedRow = table.getSelectedRow();
             if (selectedRow == -1) {
@@ -236,24 +204,39 @@ private void loadDropboxData(Connection connection) {
                 return;
             }
 
-            int id = (int) tableModel.getValueAt(selectedRow, 0);
-            DropboxDAO dropboxDAO = new DropboxDAO(connection);
+            int id = Integer.parseInt(tableModel.getValueAt(selectedRow, 0).toString());
             dropboxDAO.deleteDropbox(id);
 
             JOptionPane.showMessageDialog(this, "Data berhasil dihapus!");
-            loadDropboxData(connection);
+            loadDropboxData();
             clearInputFields();
         } catch (Exception e) {
-            e.printStackTrace();
             JOptionPane.showMessageDialog(this, "Error deleting dropbox: " + e.getMessage());
         }
     }
 
-    // Kosongkan kolom input
+    private void searchDropbox(String keyword) {
+        try {
+            List<Dropbox> dropboxList = dropboxDAO.searchDropboxByName(keyword);
+            tableModel.setRowCount(0);
+            for (Dropbox dropbox : dropboxList) {
+                tableModel.addRow(new Object[]{
+                        dropbox.getId(),
+                        dropbox.getNamaDropBox(),
+                        dropbox.getDaerahID(),
+                        dropbox.getTotalSampah(),
+                        dropbox.getTotalPoint()
+                });
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Gagal mencari data: " + e.getMessage());
+        }
+    }
+
     private void clearInputFields() {
-        txtNama.setText("");
+        txtNamaDropbox.setText("");
+        txtLokasiDropbox.setText("");
         txtTotalSampah.setText("");
-        txtTotalPoin.setText("");
-        cbDaerah.setSelectedIndex(0); // Reset ComboBox to the first item
+        txtTotalPoint.setText("");
     }
 }

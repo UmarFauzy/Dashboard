@@ -24,7 +24,7 @@ public class DropboxDAO {
         }
     }
 
-    // READ
+    // READ ALL
     public List<Dropbox> getAllDropbox() throws SQLException {
         List<Dropbox> dropboxList = new ArrayList<>();
         String query = "SELECT * FROM dropbox";
@@ -38,6 +38,27 @@ public class DropboxDAO {
                         rs.getDouble("Total_Sampah"),
                         rs.getInt("Total_Point")
                 ));
+            }
+        }
+        return dropboxList;
+    }
+
+    // READ BY NAME (SEARCH)
+    public List<Dropbox> searchDropboxByName(String keyword) throws SQLException {
+        List<Dropbox> dropboxList = new ArrayList<>();
+        String query = "SELECT * FROM dropbox WHERE Nama_DropBox LIKE ?";
+        try (PreparedStatement stmt = connection.prepareStatement(query)) {
+            stmt.setString(1, "%" + keyword + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    dropboxList.add(new Dropbox(
+                            rs.getInt("ID"),
+                            rs.getString("Nama_DropBox"),
+                            rs.getInt("Daerah_ID"),
+                            rs.getDouble("Total_Sampah"),
+                            rs.getInt("Total_Point")
+                    ));
+                }
             }
         }
         return dropboxList;
