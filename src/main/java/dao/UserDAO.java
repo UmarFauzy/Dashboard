@@ -1,6 +1,10 @@
 package dao;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,6 +12,7 @@ import model.Daerah;
 import model.User;
 
 public class UserDAO {
+
     private Connection connection;
 
     public UserDAO(Connection connection) {
@@ -30,12 +35,11 @@ public class UserDAO {
     // READ USERS WITH DAERAH
     public List<User> getAllUsersWithDaerah() throws SQLException {
         List<User> users = new ArrayList<>();
-        String query = "SELECT user.ID, user.Nama_Pengguna, daerah.Nama_Daerah, user.Total_Sampah, user.Total_Point, user.Nomor_HP " +
-                       "FROM user " +
-                       "JOIN daerah ON user.Daerah_ID = daerah.ID";
+        String query = "SELECT user.ID, user.Nama_Pengguna, daerah.Nama_Daerah, user.Total_Sampah, user.Total_Point, user.Nomor_HP "
+                + "FROM user "
+                + "JOIN daerah ON user.Daerah_ID = daerah.ID";
 
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 users.add(new User(
                         rs.getInt("ID"),
@@ -54,23 +58,32 @@ public class UserDAO {
     public List<Daerah> getDaerahList() throws SQLException {
         List<Daerah> daerahList = new ArrayList<>();
         String query = "SELECT * FROM daerah";
-        
-        try (Statement stmt = connection.createStatement();
-             ResultSet rs = stmt.executeQuery(query)) {
+
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
             while (rs.next()) {
                 // Menambahkan objek Daerah ke dalam list dengan informasi lengkap dari database
                 daerahList.add(new Daerah(
                         rs.getInt("ID"),
                         rs.getString("Nama_Daerah"),
-                        rs.getDouble("Total_Sampah"),  // Mengambil Total_Sampah yang baru
-                        rs.getInt("Total_Point")       // Mengambil Total_Point yang baru
+                        rs.getDouble("Total_Sampah"), // Mengambil Total_Sampah yang baru
+                        rs.getInt("Total_Point") // Mengambil Total_Point yang baru
                 ));
             }
         }
         return daerahList;
     }
-    
 
+    public List<String> getAllNoHandphone() throws SQLException {
+        List<String> noHandphoneList = new ArrayList<>();
+        String query = "SELECT Nomor_HP FROM user";
+
+        try (Statement stmt = connection.createStatement(); ResultSet rs = stmt.executeQuery(query)) {
+            while (rs.next()) {
+                noHandphoneList.add(rs.getString("Nomor_HP"));
+            }
+        }
+        return noHandphoneList;
+    }
 
     // UPDATE
     public void updateUser(User user) throws SQLException {
