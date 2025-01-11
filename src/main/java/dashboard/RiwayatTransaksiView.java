@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.sql.*;
+import java.util.HashMap;
 import java.util.List;
 
 public class RiwayatTransaksiView extends JPanel {
@@ -22,6 +23,13 @@ public class RiwayatTransaksiView extends JPanel {
     private JComboBox<KeseluruhanSampah> cbSampah;
     private JComboBox<KategoriSampah> cbKategori;
     private JComboBox<String> cbNoHandphone;
+
+    private HashMap<Integer, String> userMap = new HashMap<>();
+    private HashMap<Integer, String> kurirMap = new HashMap<>();
+    private HashMap<Integer, String> sampahMap = new HashMap<>();
+    private HashMap<Integer, String> kategoriMap = new HashMap<>();
+    private HashMap<Integer, String> dropboxMap = new HashMap<>();
+    private HashMap<Integer, String> daerahMap = new HashMap<>();
 
     public RiwayatTransaksiView(Connection connection) {
         setLayout(new BorderLayout());
@@ -210,6 +218,7 @@ public class RiwayatTransaksiView extends JPanel {
             List<User> userList = userDAO.getAllUsersWithDaerah();
             for (User user : userList) {
                 cbUser.addItem(user);
+                userMap.put(user.getId(), user.getNamaPengguna());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -223,6 +232,7 @@ public class RiwayatTransaksiView extends JPanel {
             List<Kurir> kurirList = kurirDAO.getAllKurir();
             for (Kurir kurir : kurirList) {
                 cbKurir.addItem(kurir);
+                kurirMap.put(kurir.getId(), kurir.getNamaKurir());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -236,6 +246,7 @@ public class RiwayatTransaksiView extends JPanel {
             List<KeseluruhanSampah> sampahList = sampahDAO.getAllKeseluruhanSampah();
             for (KeseluruhanSampah sampah : sampahList) {
                 cbSampah.addItem(sampah);
+                sampahMap.put(sampah.getNo(), sampah.getJenisSampah());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -249,6 +260,7 @@ public class RiwayatTransaksiView extends JPanel {
             List<KategoriSampah> kategoriList = kategoriDAO.getAllKategoriSampah();
             for (KategoriSampah kategori : kategoriList) {
                 cbKategori.addItem(kategori);
+                kategoriMap.put(kategori.getNo(), kategori.getNamaKategori());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -279,7 +291,8 @@ public class RiwayatTransaksiView extends JPanel {
             DropboxDAO dropboxDAO = new DropboxDAO(connection);
             List<Dropbox> dropboxList = dropboxDAO.getAllDropbox();
             for (Dropbox dropbox : dropboxList) {
-                cbDropBox.addItem(dropbox);  // Populate ComboBox with Dropbox data
+                cbDropBox.addItem(dropbox);
+                dropboxMap.put(dropbox.getId(), dropbox.getNamaDropBox());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -292,7 +305,8 @@ public class RiwayatTransaksiView extends JPanel {
             DaerahDAO daerahDAO = new DaerahDAO(connection);
             List<Daerah> daerahList = daerahDAO.getAllDaerah();
             for (Daerah daerah : daerahList) {
-                cbDaerah.addItem(daerah);  // Populate ComboBox with Daerah data
+                cbDaerah.addItem(daerah);
+                daerahMap.put(daerah.getId(), daerah.getNamaDaerah());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -313,14 +327,14 @@ public class RiwayatTransaksiView extends JPanel {
                 tableModel.addRow(new Object[]{
                     transaksi.getId(),
                     transaksi.getTanggal(),
-                    transaksi.getUserId(),
-                    transaksi.getKurirId(),
-                    transaksi.getSampahId(),
-                    transaksi.getKategoriId(),
+                    userMap.get(transaksi.getUserId()), // Tampilkan nama user
+                    kurirMap.get(transaksi.getKurirId()), // Tampilkan nama kurir
+                    sampahMap.get(transaksi.getSampahId()), // Tampilkan nama sampah
+                    kategoriMap.get(transaksi.getKategoriId()), // Tampilkan nama kategori
                     transaksi.getTotalSampah(),
                     transaksi.getTotalPoint(),
-                    transaksi.getDropBoxId(),
-                    transaksi.getDaerahId(),
+                    dropboxMap.get(transaksi.getDropBoxId()), // Tampilkan nama Dropbox
+                    daerahMap.get(transaksi.getDaerahId()), // Tampilkan nama Daerah
                     transaksi.getNoHandphone()
                 });
             }
