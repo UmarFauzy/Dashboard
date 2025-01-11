@@ -6,7 +6,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import javax.swing.*;
 
-
 public class MainDashboard {
 
     private static Connection connection; // Field untuk koneksi database
@@ -51,7 +50,7 @@ public class MainDashboard {
         });
 
         // Action listener untuk tombol Daerah
-        JButton btnDaerah = new JButton("Daerah");
+        JButton btnDaerah = (JButton) ((JPanel) sidebar.getComponent(1)).getComponent(2);
         btnDaerah.addActionListener(e -> {
             if (connection == null) {
                 JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
@@ -59,10 +58,9 @@ public class MainDashboard {
             }
             updateContentPanel(contentPanel, new DaerahView(connection));
         });
-        ((JPanel) sidebar.getComponent(1)).add(btnDaerah);
 
         // Action listener untuk tombol Dropbox
-        JButton btnDropbox = new JButton("Dropbox");
+        JButton btnDropbox = (JButton) ((JPanel) sidebar.getComponent(1)).getComponent(3);
         btnDropbox.addActionListener(e -> {
             if (connection == null) {
                 JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
@@ -70,10 +68,9 @@ public class MainDashboard {
             }
             updateContentPanel(contentPanel, new DropBoxView(connection));
         });
-        ((JPanel) sidebar.getComponent(1)).add(btnDropbox);
 
         // Action listener untuk tombol Kategori Sampah
-        JButton btnKategoriSampah = new JButton("Kategori Sampah");
+        JButton btnKategoriSampah = (JButton) ((JPanel) sidebar.getComponent(1)).getComponent(4);
         btnKategoriSampah.addActionListener(e -> {
             if (connection == null) {
                 JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
@@ -81,28 +78,18 @@ public class MainDashboard {
             }
             updateContentPanel(contentPanel, new KategoriSampahView(connection));
         });
-        ((JPanel) sidebar.getComponent(1)).add(btnKategoriSampah);
+
+
 
         // Action listener untuk tombol Keseluruhan Sampah
-        JButton btnKeseluruhanSampah = new JButton("Keseluruhan Sampah");
+        JButton btnKeseluruhanSampah =(JButton) ((JPanel) sidebar.getComponent(1)).getComponent(5);
         btnKeseluruhanSampah.addActionListener(e -> {
             if (connection == null) {
                 JOptionPane.showMessageDialog(frame, "Koneksi database tidak tersedia!");
                 return;
             }
-            updateContentPanel(contentPanel, new KeseluruhanSampahView(connection));  // Pastikan view ini muncul
+            updateContentPanel(contentPanel, new KeseluruhanSampahView(connection));
         });
-
-        // Menghapus tombol yang sudah ada sebelum menambah tombol Keseluruhan Sampah
-        JPanel buttonPanel = (JPanel) sidebar.getComponent(1);
-        for (Component component : buttonPanel.getComponents()) {
-            if (component instanceof JButton && ((JButton) component).getText().equals("Keseluruhan Sampah")) {
-                buttonPanel.remove(component); // Menghapus tombol yang sudah ada
-            }
-        }
-
-        // Menambahkan tombol Keseluruhan Sampah hanya satu kali
-        buttonPanel.add(btnKeseluruhanSampah);
     }
 
     private static void initializeDatabaseConnection() {
@@ -119,7 +106,7 @@ public class MainDashboard {
     private static JFrame createMainFrame() {
         JFrame frame = new JFrame("Dashboard");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(1300, 900);
+        frame.setSize(1200, 800);
         return frame;
     }
 
@@ -144,11 +131,14 @@ public class MainDashboard {
         JButton btnDaerah = new JButton("Daerah");
         buttonPanel.add(btnDaerah);
 
-        JButton btnDropbox = new JButton("Dropbox");
-        buttonPanel.add(btnDropbox);
+        JButton btnDropBox = new JButton("DropBox");
+        buttonPanel.add(btnDropBox);
 
         JButton btnKategoriSampah = new JButton("Kategori Sampah");
         buttonPanel.add(btnKategoriSampah);
+
+        JButton btnKeseluruhanSampah = new JButton("Keseluruhan Sampah");
+        buttonPanel.add(btnKeseluruhanSampah);
 
         sidebar.add(buttonPanel, BorderLayout.CENTER);
 

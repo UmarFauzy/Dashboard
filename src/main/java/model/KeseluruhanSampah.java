@@ -49,6 +49,6 @@ public class KeseluruhanSampah {
 
     public KategoriSampah getKategoriSampah() {
         // Implement a method to get the KategoriSampah object based on kategoriSampahId
-        return new KategoriSampah(kategoriSampahId, "Dummy Name"); // Example, adjust accordingly
+        return new KategoriSampah(kategoriSampahId, "namaKategori"); // Example, adjust accordingly
     }
 }
