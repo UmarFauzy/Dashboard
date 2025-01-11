@@ -1,6 +1,7 @@
 package model;
 
 public class KeseluruhanSampah {
+
     private int no;
     private String jenisSampah;
     private int kategoriSampahId;
@@ -14,7 +15,6 @@ public class KeseluruhanSampah {
         this.totalSampah = totalSampah;
     }
 
-    
     public int getNo() {
         return no;
     }
@@ -50,5 +50,10 @@ public class KeseluruhanSampah {
     public KategoriSampah getKategoriSampah() {
         // Implement a method to get the KategoriSampah object based on kategoriSampahId
         return new KategoriSampah(kategoriSampahId, "Dummy Name"); // Example, adjust accordingly
+    }
+
+    @Override
+    public String toString() {
+        return jenisSampah; // Tampilkan jenis sampah sebagai representasi string
     }
 }
